@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://your-adonis-backend.com/api",
+  baseURL: "http://localhost:3333/api/",
   headers: {
     "Content-Type": "application/json",
   },

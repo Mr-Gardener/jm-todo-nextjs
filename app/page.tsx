@@ -22,6 +22,12 @@ export default function HomePage() {
             Register
           </button>
         </Link>
+
+        <Link href="/tasks">
+          <button>
+            Tasks
+          </button>
+          </Link>
       </div>
     </main>
   );

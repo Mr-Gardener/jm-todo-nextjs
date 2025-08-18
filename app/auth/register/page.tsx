@@ -1,16 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
+import { AxiosError } from "axios";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login: setAuthUser } = useAuth();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add register logic here
-    console.log("Registering:", { fullName, email, password });
+    
+      try {
+    const res = await axios.post("http://localhost:3333/api/register", {
+      full_name: fullName,
+      email,
+      password,
+    });
+
+    // Save token and user in context
+    setAuthUser(res.data.user, res.data.access_token);
+
+    console.log("Registration successful:", res.data);
+  } catch (err: unknown) {
+  const error = err as AxiosError<{ message?: string }>;
+    console.error("Registration failed:", error.response?.data || error.message);
+  }
   };
 
   return (

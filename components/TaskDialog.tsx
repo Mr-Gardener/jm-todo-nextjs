@@ -1,25 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-interface Task {
-  id?: number;
+export interface Task {
+  id: number;
   title: string;
   description?: string;
+  isCompleted: boolean;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TaskDialogProps {
-  mode?: "add" | "edit";
+  open: boolean;
+  mode: "add" | "edit";
   task?: Task;
+  onClose: () => void;
   onSubmit: (taskData: Partial<Task>) => void;
 }
 
-export default function TaskDialog({ mode = "add", task, onSubmit }: TaskDialogProps) {
-  const [open, setOpen] = useState(false);
+export default function TaskDialog({ open, mode, task, onClose, onSubmit }: TaskDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -31,19 +36,20 @@ export default function TaskDialog({ mode = "add", task, onSubmit }: TaskDialogP
       setTitle("");
       setDescription("");
     }
-  }, [mode, task, open]);
+  }, [mode, task]);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
-    onSubmit({ id: task?.id, title, description,  });
-    setOpen(false);
+    onSubmit({
+      id: task?.id,
+      title,
+      description,
+    });
+    onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>{mode === "add" ? "Add Task" : "Edit"}</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{mode === "add" ? "Add Task" : "Edit Task"}</DialogTitle>

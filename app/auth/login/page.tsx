@@ -1,15 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
+import { AxiosError } from "axios";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login: setAuthUser } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add login logic here
-    console.log("Logging in:", { email, password });
+    
+  try {
+    const res = await axios.post("http://localhost:3333/api/login", {
+      email,
+      password,
+    });
+
+    // Save token and user in context
+    setAuthUser(res.data.user, res.data.access_token);
+
+    console.log("Login successful:", res.data);
+  } catch (err: unknown) {
+    const error = err as AxiosError<{ message?: string }>;
+      console.error("Login failed:", error.response?.data || error.message);
+    }
   };
 
   return (
