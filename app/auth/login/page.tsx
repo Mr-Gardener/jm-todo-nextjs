@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useAuth } from "@/app/context/AuthContext";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,19 +12,19 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-  try {
-    const res = await axios.post("http://localhost:3333/api/login", {
-      email,
-      password,
-    });
 
-    // Save token and user in context
-    setAuthUser(res.data.user, res.data.access_token);
+    try {
+      const res = await axios.post("http://localhost:3333/api/login", {
+        email,
+        password,
+      });
 
-    console.log("Login successful:", res.data);
-  } catch (err: unknown) {
-    const error = err as AxiosError<{ message?: string }>;
+      // Save token and user in context
+      setAuthUser(res.data.user, res.data.access_token);
+
+      console.log("Login successful:", res.data);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
       console.error("Login failed:", error.response?.data || error.message);
     }
   };
@@ -61,6 +61,13 @@ export default function LoginPage() {
         >
           Login
         </button>
+
+        {/* Forgot password link */}
+        <div className="mt-4 text-center">
+          <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
       </form>
     </main>
   );
