@@ -4,15 +4,21 @@ import { useState } from "react";
 import axios from "axios";
 import { AxiosError } from "axios";
 import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login: setAuthUser } = useAuth();
+   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
     
       try {
     const res = await axios.post("http://localhost:3333/api/register", {
@@ -24,12 +30,17 @@ export default function RegisterPage() {
     // Save token and user in context
     setAuthUser(res.data.user, res.data.access_token);
 
-    console.log("Registration successful:", res.data);
+    setMessage("Registration successful! Redirecting...");
+    setTimeout(() => router.push("/auth/login"), 1500);
   } catch (err: unknown) {
-  const error = err as AxiosError<{ message?: string }>;
-    console.error("Registration failed:", error.response?.data || error.message);
-  }
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Something went wrong.");
+      } else {
+        setError("Unexpected error occurred.");
+      }
+    }
   };
+
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -72,6 +83,10 @@ export default function RegisterPage() {
         >
           Register
         </button>
+
+        {message && <p className="text-green-600">{message}</p>}
+        {error && <p className="text-red-600">{error}</p>}
+
       </form>
     </main>
   );
