@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function TaskListPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -38,6 +39,30 @@ export default function TaskListPage() {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+    const handleCheckboxChange = (taskId: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+    );
+  };
+
+  const handleDeleteMany = async () => {
+    if (selectedIds.length === 0) {
+      alert("Please select at least one task.");
+      return;
+    }
+    try {
+      const res = await axios.delete("http://localhost:3333/api/tasks/bulk-delete", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { ids: selectedIds },
+      });
+      alert(res.data.message);
+      fetchTasks();
+      setSelectedIds([]);
+    } catch {
+      alert("Failed to delete selected tasks");
+    }
+  };
 
   const handleAdd = () => {
     setDialogMode("add");
@@ -86,7 +111,12 @@ export default function TaskListPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Task List</h1>
-        <Button onClick={handleAdd}>Add Task</Button>
+        <div className="space-x-2">
+          <Button variant="destructive" onClick={handleDeleteMany} disabled={selectedIds.length === 0}>
+            Delete Selected
+          </Button>
+          <Button onClick={handleAdd}>Add Task</Button>
+        </div>
       </div>
 
       {tasks.length === 0 ? (
@@ -95,6 +125,7 @@ export default function TaskListPage() {
         <table className="w-full border border-gray-300">
           <thead className="bg-gray-100">
             <tr>
+              <th className="border px-4 py-2">Select</th>
               <th className="border px-4 py-2">ID</th>
               <th className="border px-4 py-2">Title</th>
               <th className="border px-4 py-2">Description</th>
@@ -105,6 +136,13 @@ export default function TaskListPage() {
           <tbody>
             {tasks.map((task) => (
               <tr key={task.id}>
+                <td className="border px-4 py-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(task.id)}
+                    onChange={() => handleCheckboxChange(task.id)}
+                  />
+                </td>
                 <td className="border px-4 py-2">{task.id}</td>
                 <td className="border px-4 py-2">{task.title}</td>
                 <td className="border px-4 py-2">{task.description || "-"}</td>
