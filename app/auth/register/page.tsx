@@ -30,7 +30,7 @@ export default function RegisterPage() {
     // Save token and user in context
     setAuthUser(res.data.user, res.data.access_token);
 
-    setMessage("Registration successful! Redirecting...");
+    setMessage("Registration successful!");
     setTimeout(() => router.push("/auth/login"), 1500);
   } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
