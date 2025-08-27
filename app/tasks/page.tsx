@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import TaskDialog, { Task } from "@/components/TaskDialog";
 import { Button } from "@/components/ui/button";
+import { DeleteTaskDialog } from "@/components/DeleteTaskDialog";
+import { useRouter } from "next/navigation";
 
 export default function TaskListPage() {
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +16,7 @@ export default function TaskListPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [taskToEdit, setTaskToEdit] = useState<Task | undefined>();
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -104,6 +108,36 @@ export default function TaskListPage() {
     }
   };
 
+  //logout logic
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = async () => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      await axios.delete("http://localhost:3333/api/logout", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
+
+    // Clear localStorage regardless
+    localStorage.removeItem("token");
+
+    setIsLoggedIn(false); //update status
+
+    // Redirect to login page
+    router.push("/auth/login");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -151,7 +185,15 @@ export default function TaskListPage() {
                 </td>
                 <td className="border px-4 py-2 space-x-2">
                   <Button size="sm" onClick={() => handleEdit(task)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(task.id)}>Delete</Button>
+                  <DeleteTaskDialog
+                    taskTitle={task.title}
+                    onConfirm={() => handleDelete(task.id)}
+                    trigger={
+                      <Button size="sm" variant="destructive">
+                        Delete
+                      </Button>
+                    }
+                  />
                 </td>
               </tr>
             ))}
@@ -166,6 +208,14 @@ export default function TaskListPage() {
         onClose={() => setDialogOpen(false)}
         onSubmit={handleSave}
       />
+
+      <button
+      onClick={handleLogout}
+      disabled={loading}
+      className="bg-red-500 text-white px-4 py-2 rounded"
+    >
+      {loading ? "Logging out..." : "Logout"}
+    </button>
     </div>
   );
 }

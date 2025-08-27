@@ -1,7 +1,7 @@
+
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function ResetPasswordPage() {
@@ -9,13 +9,18 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const params = useParams();
-  const token = params?.token as string;
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token"); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
+
+    if (!token) {
+      setError("Invalid reset link");
+      return;
+    }
 
     try {
       const res = await axios.post("http://localhost:3333/api/reset-password", {
@@ -23,15 +28,15 @@ export default function ResetPasswordPage() {
         password,
       });
       setMessage(res.data.message || "Password reset successful.");
-      setTimeout(() => router.push("/login"), 2000);
+      setTimeout(() => router.push("/auth/login"), 2000);
     } catch (err: unknown) {
-  if (axios.isAxiosError(err)) {
-    setError(err.response?.data?.message || "Something went wrong.");
-  } else {
-    setError("Something went wrong.");
-  }
-}
-  }
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Something went wrong.");
+      } else {
+        setError("Something went wrong.");
+      }
+    }
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100">
