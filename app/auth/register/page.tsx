@@ -19,20 +19,19 @@ export default function RegisterPage() {
     e.preventDefault();
     setMessage("");
     setError("");
-    
-      try {
-    const res = await axios.post("http://localhost:3333/api/register", {
-      full_name: fullName,
-      email,
-      password,
-    });
 
-    // Save token and user in context
-    setAuthUser(res.data.user, res.data.access_token);
+    try {
+      const res = await axios.post("http://localhost:3333/api/register", {
+        full_name: fullName,
+        email,
+        password,
+      });
 
-    setMessage("Registration successful!");
-    setTimeout(() => router.push("/auth/login"), 1500);
-  } catch (err: unknown) {
+      setMessage(res.data.message || "Registration successful! Please check your email.");
+
+      // ⬇️ Redirect user to verification page instead of auto-login
+      setTimeout(() => router.push("/auth/verify-email"), 2000);
+    } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || "Something went wrong.");
       } else {
@@ -40,7 +39,6 @@ export default function RegisterPage() {
       }
     }
   };
-
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100">
