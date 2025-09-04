@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import TaskDialog, { Task } from "@/components/TaskDialog";
 import { Button } from "@/components/ui/button";
-import { DeleteTaskDialog } from "@/components/DeleteTaskDialog";
+import { DeleteManyTasksDialog } from "@/components/DeleteManyTasksDialog";
 import { useRouter } from "next/navigation";
 
 export default function TaskListPage() {
@@ -146,9 +146,18 @@ export default function TaskListPage() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Task List</h1>
         <div className="space-x-2">
-          <Button variant="destructive" onClick={handleDeleteMany} disabled={selectedIds.length === 0}>
-            Delete Selected
-          </Button>
+          <DeleteManyTasksDialog
+            count={selectedIds.length}
+            onConfirm={handleDeleteMany}
+            trigger={
+            <Button
+              variant="destructive"
+              disabled={selectedIds.length === 0}
+            >
+              Delete Selected
+            </Button>
+            }
+          />         
           <Button onClick={handleAdd}>Add Task</Button>
         </div>
       </div>
@@ -185,15 +194,7 @@ export default function TaskListPage() {
                 </td>
                 <td className="border px-4 py-2 space-x-2">
                   <Button size="sm" onClick={() => handleEdit(task)}>Edit</Button>
-                  <DeleteTaskDialog
-                    taskTitle={task.title}
-                    onConfirm={() => handleDelete(task.id)}
-                    trigger={
-                      <Button size="sm" variant="destructive">
-                        Delete
-                      </Button>
-                    }
-                  />
+                  
                 </td>
               </tr>
             ))}
