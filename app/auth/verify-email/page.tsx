@@ -1,12 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 export default function VerifyEmailPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("Verifying your account...");
+
+  useEffect(() => {
+    const verify = async () => {
+      if (!token) {
+        setStatus("❌ No token provided.");
+        return;
+      }
+
+      try {
+        await axios.get(`http://localhost:3333/api/verify-email?token=${token}`);
+        setStatus("✅ Email verified! Redirecting to login...");
+        setTimeout(() => router.push("/auth/login"), 3000);
+      } catch (err) {
+        setStatus("❌ Verification failed. The link may be invalid or expired.");
+      }
+    };
+
+    verify();
+  }, [token, router]);
 
 const handleResend = async () => {
   setError("");
@@ -14,7 +38,7 @@ const handleResend = async () => {
 
   try {
     await axios.post("http://localhost:3333/api/resend-verification", {
-      email, // must pass email here
+      email,
     });
     setMessage("Verification email resent! Please check your inbox.");
   } catch (err) {
@@ -29,6 +53,7 @@ const handleResend = async () => {
         <p className="mb-4">
           We sent you a verification link. Please check your inbox before logging in.
         </p>
+        <p>{status}</p>
         <input
             type="email"
             placeholder="Enter your email"
