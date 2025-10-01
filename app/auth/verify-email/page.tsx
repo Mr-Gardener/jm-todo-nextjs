@@ -16,16 +16,16 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const verify = async () => {
       if (!token) {
-        setStatus("❌ No token provided.");
+        setStatus("No token provided.");
         return;
       }
 
       try {
-        await axios.get(`http://localhost:3333/api/verify-email?token=${token}`);
-        setStatus("✅ Email verified! Redirecting to login...");
+        await axios.get(`${process.env.NEXT_PUBLIC_API_URL}verify-email?token=${token}`);
+        setStatus("Email verified! Redirecting to login...");
         setTimeout(() => router.push("/auth/login"), 3000);
       } catch (err) {
-        setStatus("❌ Verification failed. The link may be invalid or expired.");
+        setStatus("Verification failed. The link may be invalid or expired.");
       }
     };
 
@@ -37,7 +37,7 @@ const handleResend = async () => {
   setMessage("");
 
   try {
-    await axios.post("http://localhost:3333/api/resend-verification", {
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}resend-verification`, {
       email,
     });
     setMessage("Verification email resent! Please check your inbox.");

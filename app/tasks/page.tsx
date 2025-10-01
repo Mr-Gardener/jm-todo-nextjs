@@ -28,7 +28,7 @@ export default function TaskListPage() {
         return;
       }
 
-      const res = await axios.get("http://localhost:3333/api/tasks", {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}tasks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -56,7 +56,7 @@ export default function TaskListPage() {
       return;
     }
     try {
-      const res = await axios.delete("http://localhost:3333/api/tasks/bulk-delete", {
+      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tasks/bulk-delete`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { ids: selectedIds },
       });
@@ -82,7 +82,7 @@ export default function TaskListPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3333/api/tasks/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tasks/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
@@ -94,11 +94,11 @@ export default function TaskListPage() {
   const handleSave = async (taskData: Partial<Task>) => {
     try {
       if (dialogMode === "add") {
-        await axios.post("http://localhost:3333/api/tasks", taskData, {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}tasks`, taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await axios.put(`http://localhost:3333/api/tasks/${taskData.id}`, taskData, {
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}tasks/${taskData.id}`, taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
@@ -119,7 +119,7 @@ export default function TaskListPage() {
   try {
     const token = localStorage.getItem("token");
     if (token) {
-      await axios.delete("http://localhost:3333/api/logout", {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}logout`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     }

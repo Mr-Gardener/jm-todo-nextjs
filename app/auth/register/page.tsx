@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { AxiosError } from "axios";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +20,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:3333/api/register", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}register`, {
         full_name: fullName,
         email,
         password,
