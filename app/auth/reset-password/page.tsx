@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 
+export const dynamic = "force-dynamic";
+
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
