@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/axios";
 
+export const dynamic = "force-dynamic";
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
