@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}register`, {
+      const res = await api.post(`register`, {
         full_name: fullName,
         email,
         password,
@@ -31,11 +32,11 @@ export default function RegisterPage() {
       // ⬇️ Redirect user to verification page instead of auto-login
       setTimeout(() => router.push("/auth/verify-email"), 2000);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Something went wrong.");
-      } else {
-        setError("Unexpected error occurred.");
-      }
+      const errorMessage = isAxiosError(err)
+        ? err.response?.data?.message || "Something went wrong."
+        : "Something went wrong.";
+
+      setError(errorMessage);
     }
   };
 

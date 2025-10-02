@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import TaskDialog, { Task } from "@/components/TaskDialog";
 import { Button } from "@/components/ui/button";
 import { DeleteManyTasksDialog } from "@/components/DeleteManyTasksDialog";
@@ -28,7 +28,7 @@ export default function TaskListPage() {
         return;
       }
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}tasks`, {
+      const res = await api.get(`tasks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -56,7 +56,7 @@ export default function TaskListPage() {
       return;
     }
     try {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tasks/bulk-delete`, {
+      const res = await api.delete(`tasks/bulk-delete`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { ids: selectedIds },
       });
@@ -82,7 +82,7 @@ export default function TaskListPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tasks/${id}`, {
+      await api.delete(`tasks/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
@@ -94,11 +94,11 @@ export default function TaskListPage() {
   const handleSave = async (taskData: Partial<Task>) => {
     try {
       if (dialogMode === "add") {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}tasks`, taskData, {
+        await api.post(`tasks`, taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}tasks/${taskData.id}`, taskData, {
+        await api.put(`tasks/${taskData.id}`, taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
@@ -119,7 +119,7 @@ export default function TaskListPage() {
   try {
     const token = localStorage.getItem("token");
     if (token) {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}logout`, {
+      await api.delete(`logout`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     }

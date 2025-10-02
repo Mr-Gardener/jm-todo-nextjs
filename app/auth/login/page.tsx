@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}login`, {
+      const res = await api.post(`login`, {
         email,
         password,
       });
@@ -31,11 +32,11 @@ export default function LoginPage() {
       setMessage("Login successful!");
       setTimeout(() => router.push("/tasks"), 1500);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Something went wrong.");
-      } else {
-        setError("Unexpected error occurred.");
-      }
+      const errorMessage = isAxiosError(err)
+        ? err.response?.data?.message || "Something went wrong."
+        : "Something went wrong.";
+
+      setError(errorMessage);
     }
   };
 

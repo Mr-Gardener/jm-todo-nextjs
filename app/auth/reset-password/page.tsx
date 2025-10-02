@@ -1,8 +1,9 @@
-
 "use client";
+
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -10,12 +11,14 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token"); 
+  const token = searchParams.get("token");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setLoading(true);
 
     if (!token) {
       setError("Invalid reset link");
@@ -23,18 +26,19 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}reset-password`, {
+      const res = await api.post(`reset-password`, {
         token,
         password,
       });
       setMessage(res.data.message || "Password reset successful.");
       setTimeout(() => router.push("/auth/login"), 2000);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Something went wrong.");
-      } else {
-        setError("Something went wrong.");
-      }
+      const errorMessage = isAxiosError(err)
+        ? err.response?.data?.message || "Something went wrong."
+        : "Something went wrong.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,9 +61,10 @@ export default function ResetPasswordPage() {
 
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
-          Reset Password
+          {loading ? "Resetting..." : "Reset Password"}
         </button>
 
         {message && <p className="text-green-600 mt-4">{message}</p>}

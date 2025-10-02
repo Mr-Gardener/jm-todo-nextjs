@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function VerifyEmailPage() {
       }
 
       try {
-        await axios.get(`${process.env.NEXT_PUBLIC_API_URL}verify-email?token=${token}`);
+        await api.get(`verify-email?token=${token}`);
         setStatus("Email verified! Redirecting to login...");
         setTimeout(() => router.push("/auth/login"), 3000);
       } catch (err) {
@@ -37,7 +37,7 @@ const handleResend = async () => {
   setMessage("");
 
   try {
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}resend-verification`, {
+    await api.post(`resend-verification`, {
       email,
     });
     setMessage("Verification email resent! Please check your inbox.");

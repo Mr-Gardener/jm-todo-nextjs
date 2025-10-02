@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -13,15 +14,15 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}forgot-password`, { email });
+      const res = await api.post(`forgot-password`, { email });
       setMessage(res.data.message || "Reset link sent to your email.");
     } catch (err: unknown) {
-  if (axios.isAxiosError(err)) {
-    setError(err.response?.data?.message || "Something went wrong.");
-  } else {
-    setError("Something went wrong.");
-  }
-}
+      const errorMessage = isAxiosError(err)
+        ? err.response?.data?.message || "Something went wrong."
+        : "Something went wrong.";
+
+      setError(errorMessage);
+    }
   }
 
   return (
