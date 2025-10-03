@@ -3,11 +3,9 @@
 import { useState } from "react";
 import api from "@/lib/axios";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,10 +25,7 @@ export default function RegisterPage() {
         password,
       });
 
-      setMessage(res.data.message || "Registration successful! Please check your email.");
-
-      // ⬇️ Redirect user to verification page instead of auto-login
-      setTimeout(() => router.push("/auth/verify-email"), 2000);
+      setMessage(res.data.message || "Registration successful! We sent you a verification email. Please check your inbox.");
     } catch (err: unknown) {
       const errorMessage = isAxiosError(err)
         ? err.response?.data?.message || "Something went wrong."
